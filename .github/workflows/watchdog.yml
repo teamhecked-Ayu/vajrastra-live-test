@@ -1,0 +1,47 @@
+name: Live Test Watchdog
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile and run tests
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            echo "Python: $(python --version)"
+            echo "Commit: $GITHUB_SHA"
+            echo "--- compileall ---"
+            python -m compileall -q src tests
+            echo "--- unittest ---"
+            python -m unittest discover -s tests -v
+          } 2>&1 | tee verification.log
+      - name: Upload verification log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-log-python-${{ matrix.python-version }}
+          path: verification.log
+          if-no-files-found: warn
