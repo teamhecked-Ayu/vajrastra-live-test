@@ -1,0 +1,5 @@
+[project]
+name = "vajrastra-live-test"
+version = "0.1.0"
+description = "Disposable repository for Vajrastra GitHub workflow validation"
+requires-python = ">=3.10"
