@@ -2,5 +2,11 @@
 
 
 def parse_timeout(value: str) -> int:
-    """Parse a timeout value. Positive-range validation is the test task."""
-    return int(value)
+    """Parse a timeout and require a positive integer."""
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("timeout must be an integer") from exc
+    if timeout <= 0:
+        raise ValueError("timeout must be positive")
+    return timeout
